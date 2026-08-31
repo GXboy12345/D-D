@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PugSaver {
@@ -9,6 +10,7 @@ public class PugSaver {
 		Collections.copy(list, Stream.concat (
 			list.stream().filter(d -> !d.getBreed().equals("Pug")),
 			list.stream().filter(d -> d.getBreed().equals("Pug"))
-		).toList());
+			// ).toList());
+			).collect(Collectors.toList()));
 	}
 }
