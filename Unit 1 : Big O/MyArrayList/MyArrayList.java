@@ -17,7 +17,7 @@ public class MyArrayList<E> {
 	/* Constructor: Create it with whatever capacity you want? */
 	@SuppressWarnings("unchecked")
 	public MyArrayList() {
-		this.internalArray = (E[])new Object[100];
+		this.internalArray = (E[])new Object[10];
 	}
 
 	/* Constructor with initial capacity */
@@ -28,9 +28,7 @@ public class MyArrayList<E> {
 
 	/* Return the number of active slots in the array list */
 	public int size() {
-		int i = internalArray.length;
-		for (int j = i - 1; j >= 0 && internalArray[j] != null; j--) i--;
-		return i;
+		return objectCount;
 	}
 
 	/* Are there zero objects in the array list? */
@@ -40,12 +38,13 @@ public class MyArrayList<E> {
 
 	/* Get the index-th object in the list. */
 	public E get(int index) {
-		if (index < 0 || index > size()) throw new IndexOutOfBoundsException();
+		checkElementIndex(index);
 		return internalArray[index];
 	}
 
 	/* Replace the object at index with obj.  returns object that was replaced. */
 	public E set(int index, E obj) {
+		checkElementIndex(index);
 		E old = get(index);
 		internalArray[index] = obj;
 		return old;
@@ -54,42 +53,34 @@ public class MyArrayList<E> {
 	/* Returns true if this list contains an element equal to obj;
 	 otherwise returns false. */
 	public boolean contains(E obj) {
-		for (E i : internalArray) if(i.equals(obj)) return true;
+		for (int i = 0; i < objectCount; i++) if (obj == null ? internalArray[i] == null : internalArray[i].equals(obj)) return true;
 		return false;
 	}
 
 	/* Insert an object at index */
-	@SuppressWarnings("unchecked")
 	public void add(int index, E obj) {
-		// if (objectCount + 1 > internalArray.length) {
-		// 	E[] a = (E[]) new Object[internalArray.length + 100];
-		// 	for (int i = 0; i < index; i++) a[i] = internalArray[i];
-		// 	a[index] = obj;
-		// 	for (int i = index + 1; i < internalArray.length; i++) a[i+1] = internalArray[i];
-		// 	internalArray = a;
-		// } else {
-		// 	E[] a = (E[]) new Object[internalArray.length];
-		// 	for (int i = 0; i < index; i++) a[i] = internalArray[i];
-		// 	a[index] = obj;
-		// 	for (int i = index + 1; i < internalArray.length; i++) a[i+1] = internalArray[i];
-		// 	internalArray = a;
-		// }
-		E[] a = (E[]) new Object[internalArray.length + (int) ((objectCount + 1 > internalArray.length) ? 100 : 0)];
-		for (int i = 0; i < index; i++) a[i] = internalArray[i];
-		a[index] = obj;
-		for (int i = index + 1; i < internalArray.length; i++) a[i+1] = internalArray[i];
-		internalArray = a;
+		checkPositionIndex(index);
+		if (plusOneExceeds()) sizeUp();
+		for (int i = objectCount; i > index; i--) internalArray[i] = internalArray[i - 1];
+		internalArray[index] = obj;
+		objectCount++;
 	}
 
 	/* Add an object to the end of the list; returns true */
-	@SuppressWarnings("unchecked")
 	public boolean add(E obj) {
-
+		if (plusOneExceeds()) sizeUp();
+		internalArray[objectCount] = obj;
+		objectCount++;
+		return true;
 	}
 
 	/* Remove the object at index and shift.  Returns removed object. */
 	public E remove(int index) {
-		/* ---- YOUR CODE HERE ---- */
+		checkElementIndex(index);
+		E rem = internalArray[index];
+		for (int i = index; i < objectCount - 1; i++) internalArray[i] = internalArray[i + 1];
+		internalArray[--objectCount] = null;
+		return rem;
 	}
 
 	/* Removes the first occurrence of the specified element from this list, 
@@ -99,15 +90,53 @@ public class MyArrayList<E> {
 	 * Returns true if this list contained the specified element (or equivalently, 
 	 * if this list changed as a result of the call). */
 	public boolean remove(E obj) {
-		/* ---- YOUR CODE HERE ---- */
+		for (int i = 0; i < objectCount; i++) {
+			if (obj == null ? internalArray[i] == null : internalArray[i].equals(obj)) {
+				remove(i);
+				return true;
+			}
+		}
+		return false;
 	}
 
 
 	/* For testing; your string should output as "[X, X, X, X, ...]" where X, X, X, X, ... are the elements in the ArrayList.
 	 * If the array is empty, it should return "[]".  If there is one element, "[X]", etc.
 	 * Elements are separated by a comma and a space. */
+	@Override
 	public String toString() {
-		/* ---- YOUR CODE HERE ---- */
+		if (size() == 0) return "[]";
+		StringBuilder sb = new StringBuilder("[");
+		for (int i = 0; i < objectCount; i++) sb.append(internalArray[i] == null ? "null" : internalArray[i].toString()).append(", ");
+		return sb.delete(sb.length() - 2, sb.length()).append("]").toString();
+	}
+
+	public void checkElementIndex(int index) {
+		if (index < 0 || index >= objectCount) throw new IndexOutOfBoundsException();
+	}
+
+	public void checkPositionIndex(int index) {
+		if (index < 0 || index > objectCount) throw new IndexOutOfBoundsException();
+	}
+
+	@SuppressWarnings("unchecked")
+	public void sizeUp() {
+		int nc = internalArray.length == 0
+				? 1
+				: internalArray.length << 1;
+			E[] larger = (E[]) new Object[nc];
+			System.arraycopy(internalArray, 0, larger, 0, objectCount);
+			internalArray = larger;
+	}
+
+	public boolean plusOneExceeds() {
+		return (objectCount == internalArray.length);
+	}
+
+	public void swap(int index1, int index2) {
+		E temp = get(index1);
+		set(index1, get(index2));
+		set (index1, temp);
 	}
 
 }
