@@ -136,7 +136,7 @@ public class MyArrayList<E> {
 	public void swap(int index1, int index2) {
 		E temp = get(index1);
 		set(index1, get(index2));
-		set (index1, temp);
+		set (index2, temp);
 	}
 
 }
