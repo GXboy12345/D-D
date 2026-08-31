@@ -123,7 +123,7 @@ public class MyArrayList<E> {
 	public void sizeUp() {
 		int nc = internalArray.length == 0
 				? 1
-				: internalArray.length << 1;
+				: internalArray.length + (internalArray.length >> 1);
 			E[] larger = (E[]) new Object[nc];
 			System.arraycopy(internalArray, 0, larger, 0, objectCount);
 			internalArray = larger;
